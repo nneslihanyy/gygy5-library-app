@@ -31,14 +31,13 @@ import com.turkcell.libraryapp.ui.viewmodel.AuthState
 import com.turkcell.libraryapp.ui.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen(
-    onNavigateToRegister: () -> Unit = {}
+fun RegisterScreen(
+    onNavigateToLogin: () -> Unit = {}
 ) {
-    //LaunchedEffect() { }
-    val authViewModel: AuthViewModel = viewModel() // Navigasyon ekranına taşı.
+    val authViewModel: AuthViewModel = viewModel()
     val authState by authViewModel.authState.collectAsState()
 
-
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -48,58 +47,64 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text("Kütüphane Sistemi")
-        Spacer(modifier =  Modifier.height(8.dp))
-        Text("Giriş Yap")
+        Spacer(modifier = Modifier.height(8.dp))
+        Text("Kayıt Ol")
         OutlinedTextField(
             enabled = authState !is AuthState.Loading,
             modifier = Modifier.fillMaxWidth(),
-            value=email,
-            label = {Text("E-posta")},
-            onValueChange = {value -> email = value},
+            value = name,
+            label = { Text("Ad Soyad") },
+            onValueChange = { value -> name = value },
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        OutlinedTextField(
+            enabled = authState !is AuthState.Loading,
+            modifier = Modifier.fillMaxWidth(),
+            value = email,
+            label = { Text("E-posta") },
+            onValueChange = { value -> email = value },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
         Spacer(modifier = Modifier.height(10.dp))
         OutlinedTextField(
+            enabled = authState !is AuthState.Loading,
             modifier = Modifier.fillMaxWidth(),
-            value=password,
-            label = {Text("Şifre")},
-            onValueChange = {value -> password = value},
+            value = password,
+            label = { Text("Şifre") },
+            onValueChange = { value -> password = value },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation()
         )
         Spacer(modifier = Modifier.height(10.dp))
 
-
-        if(authState is AuthState.Loading)
-        {
+        if (authState is AuthState.Loading) {
             Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
-                CircularProgressIndicator(modifier=Modifier.size(20.dp),
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
                     strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.onPrimary)
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
-        }else {
+        } else {
             Button(onClick = {
-                authViewModel.signIn(email, password)
+                authViewModel.signUp(email, password, name)
             }, modifier = Modifier.fillMaxWidth()) {
-                Text("Giriş Yap")
+                Text("Kayıt Ol")
             }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        TextButton(onClick = onNavigateToRegister) {
-            Text("Hesabın yok mu? Kayıt Ol")
+        TextButton(onClick = onNavigateToLogin) {
+            Text("Zaten hesabın var mı? Giriş Yap")
         }
 
-        if(authState is AuthState.Success)
-            Text("Giriş Yapıldı")
-        else if(authState is AuthState.Error)
+        if (authState is AuthState.Success)
+            Text("Kayıt Başarılı!")
+        else if (authState is AuthState.Error)
             Text((authState as AuthState.Error).message)
     }
 }
-
-
-
-

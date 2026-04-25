@@ -33,6 +33,16 @@ class AuthViewModel: ViewModel() {
         }
     }
 
+    fun signUp(email: String, password: String, name: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            repository.
+            signUp(email, password, name).
+            onSuccess { result -> _authState.value = AuthState.Success("student") }.
+            onFailure { ex -> _authState.value = AuthState.Error(ex.message ?: "Bir hata oluştu") }
+        }
+    }
+
 
 
 }
