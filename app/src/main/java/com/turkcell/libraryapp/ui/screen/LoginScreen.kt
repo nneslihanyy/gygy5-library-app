@@ -29,12 +29,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.turkcell.libraryapp.ui.viewmodel.AuthState
 import com.turkcell.libraryapp.ui.viewmodel.AuthViewModel
+import io.github.jan.supabase.auth.Auth
 
+
+// TODO: Kayıt ol sayfası tasarlamak.
 @Composable
 fun LoginScreen(
-    onNavigateToRegister: () -> Unit = {}
+    onNavigateToRegister: () -> Unit
 ) {
+
     //LaunchedEffect() { }
+
     val authViewModel: AuthViewModel = viewModel() // Navigasyon ekranına taşı.
     val authState by authViewModel.authState.collectAsState()
 
@@ -61,6 +66,7 @@ fun LoginScreen(
         )
         Spacer(modifier = Modifier.height(10.dp))
         OutlinedTextField(
+            enabled = authState !is AuthState.Loading,
             modifier = Modifier.fillMaxWidth(),
             value=password,
             label = {Text("Şifre")},
@@ -70,7 +76,6 @@ fun LoginScreen(
             visualTransformation = PasswordVisualTransformation()
         )
         Spacer(modifier = Modifier.height(10.dp))
-
 
         if(authState is AuthState.Loading)
         {
@@ -87,10 +92,10 @@ fun LoginScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
 
-        TextButton(onClick = onNavigateToRegister) {
-            Text("Hesabın yok mu? Kayıt Ol")
+        TextButton(onClick = {  onNavigateToRegister()}) {
+            Text("Hesabınız yok mu ? Kayıt Ol")
+
         }
 
         if(authState is AuthState.Success)
@@ -99,7 +104,3 @@ fun LoginScreen(
             Text((authState as AuthState.Error).message)
     }
 }
-
-
-
-

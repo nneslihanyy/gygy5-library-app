@@ -1,48 +1,50 @@
 package com.turkcell.libraryapp.ui.viewmodel
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.turkcell.libraryapp.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-
-//Sistem  bu 4 durumdan birinde olabilir
-sealed class AuthState{
-
-    object Idle: AuthState()
-    object Loading: AuthState()
-    data class Success(val role: String): AuthState()
-    data class Error(val message: String): AuthState()
+// Sistem bu 4ünden birinde olabilir.
+sealed class AuthState {
+    object Idle : AuthState()
+    object Loading : AuthState()
+    data class Success(val role: String) : AuthState()
+    data class Error(val message: String) : AuthState()
 }
 
-class AuthViewModel: ViewModel() {
+
+class AuthViewModel : ViewModel()
+{
     private val repository = AuthRepository()
+
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
-    val authState: StateFlow<AuthState> = _authState.asStateFlow()
+    val authState: StateFlow<AuthState> = _authState;
 
-    fun signIn(email: String, password: String) {
-        viewModelScope.launch {
-            _authState.value= AuthState.Loading
-            repository.
-            signIn(email,password).
-            onSuccess { result ->_authState.value= AuthState.Success("student") }.
-            onFailure { ex -> _authState.value= AuthState.Error(ex.message ?: "Something went wrong") }
-        }
-    }
-
-    fun signUp(email: String, password: String, name: String) {
+    fun signIn(email: String, password: String)
+    {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
-            repository.
-            signUp(email, password, name).
-            onSuccess { result -> _authState.value = AuthState.Success("student") }.
-            onFailure { ex -> _authState.value = AuthState.Error(ex.message ?: "Bir hata oluştu") }
+            repository
+                .signIn(email, password)
+                .onSuccess { result -> _authState.value = AuthState.Success("student") }
+                .onFailure { ex -> _authState.value = AuthState.Error(ex.message ?: "Giriş başarısız") }
         }
     }
 
-
-
+    fun signUp(
+        email: String,
+        password: String,
+        fullName: String,
+        studentNo: String?
+    ) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            repository
+                .signUp(email, password, fullName, studentNo)
+                .onSuccess { result -> _authState.value = AuthState.Success("student") }
+                .onFailure { ex -> _authState.value = AuthState.Error(ex.message ?: "Kayıt başarısız") }
+        }
+    }
 }
