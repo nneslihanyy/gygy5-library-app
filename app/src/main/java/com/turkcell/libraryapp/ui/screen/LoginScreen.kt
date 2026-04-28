@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,24 +30,31 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.turkcell.libraryapp.ui.viewmodel.AuthState
 import com.turkcell.libraryapp.ui.viewmodel.AuthViewModel
-import io.github.jan.supabase.auth.Auth
 
 
-// TODO: Kayıt ol sayfası tasarlamak.
+
+
 @Composable
 fun LoginScreen(
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    authViewModel: AuthViewModel = viewModel(),
+    onLoginSuccess:(role: String)-> Unit
 ) {
 
-    //LaunchedEffect() { }
 
-    val authViewModel: AuthViewModel = viewModel() // Navigasyon ekranına taşı.
+
+     // Navigasyon ekranına taşı.
     val authState by authViewModel.authState.collectAsState()
-
-
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    LaunchedEffect(authState) {
+if (authState is AuthState.Success)
+{
+    onLoginSuccess((authState as AuthState.Success).role)
+}
+
+    }
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

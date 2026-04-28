@@ -19,9 +19,10 @@ import com.turkcell.libraryapp.ui.viewmodel.AuthViewModel
 
 @Composable
 fun RegisterScreen(
-    onNavigateToLogin: () -> Unit = {}
+    onNavigateToLogin: () -> Unit = {},
+    authViewModel: AuthViewModel = viewModel()
 ) {
-    val authViewModel: AuthViewModel = viewModel()
+
     val authState by authViewModel.authState.collectAsState()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
