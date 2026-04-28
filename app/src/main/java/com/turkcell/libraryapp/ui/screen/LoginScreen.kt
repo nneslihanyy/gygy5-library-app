@@ -27,34 +27,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.turkcell.libraryapp.ui.viewmodel.AuthState
 import com.turkcell.libraryapp.ui.viewmodel.AuthViewModel
-
-
 
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    authViewModel: AuthViewModel = viewModel(),
-    onLoginSuccess:(role: String)-> Unit
+    onLoginSuccess: (role:String) -> Unit,
+    authViewModel: AuthViewModel
 ) {
-
-
-
-     // Navigasyon ekranına taşı.
     val authState by authViewModel.authState.collectAsState()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    LaunchedEffect(authState) {
-if (authState is AuthState.Success)
-{
-    onLoginSuccess((authState as AuthState.Success).role)
-}
 
+    // Yalnızca authState değişirse çalış, tüm recompositionlarda değil..
+    LaunchedEffect(authState) {
+        if(authState is AuthState.Success)
+        {
+            onLoginSuccess((authState as AuthState.Success).role)
+            authViewModel.resetState()
+        }
     }
+
+
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -100,11 +98,12 @@ if (authState is AuthState.Success)
             }
         }
 
-
-        TextButton(onClick = {  onNavigateToRegister()}) {
-            Text("Hesabınız yok mu ? Kayıt Ol")
-
+        TextButton(onClick = {
+            onNavigateToRegister()
+        },) {
+            Text("Hesabınız yok mu? Kayıt Ol")
         }
+
 
         if(authState is AuthState.Success)
             Text("Giriş Yapıldı")

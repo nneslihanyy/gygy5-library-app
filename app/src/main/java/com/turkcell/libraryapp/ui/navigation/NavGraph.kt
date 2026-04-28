@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.turkcell.libraryapp.ui.screen.HomeScreen
 
 import com.turkcell.libraryapp.ui.screen.LoginScreen
 import com.turkcell.libraryapp.ui.screen.RegisterScreen
@@ -18,9 +19,24 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
     val authViewModel: AuthViewModel = viewModel()
 
 
-    NavHost(navController = navController, startDestination = Screen.Register.route)
+    NavHost(navController = navController, startDestination = Screen.Login.route)
     {
-        composable(Screen.Login.route) { LoginScreen(  onNavigateToRegister={navController.navigate(Screen.Register.route)},authViewModel, onLoginSuccess = {role -> {}}) }
-        composable(Screen.Register.route) { RegisterScreen(onNavigateToLogin = {navController.navigate(Screen.Login.route)},authViewModel) }
+        composable(Screen.Login.route) { LoginScreen(
+            onNavigateToRegister = { navController.navigate(Screen.Register.route) },
+            onLoginSuccess = {role ->
+                navController.navigate(Screen.Homepage.route) {
+                    popUpTo(Screen.Login.route) {inclusive=true}
+                    // Yığın yalnızca verilen URL ile kalacaktı (false)
+                }
+            },
+            authViewModel
+        ) }
+        composable(Screen.Register.route) { RegisterScreen(
+            onNavigateToLogin = { navController.navigate(Screen.Login.route) },
+            authViewModel
+        ) }
+        composable(Screen.Homepage.route) {
+            HomeScreen(authViewModel)
+        }
     }
 }
