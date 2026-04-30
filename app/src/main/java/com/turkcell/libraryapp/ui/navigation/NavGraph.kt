@@ -11,15 +11,17 @@ import com.turkcell.libraryapp.ui.screen.HomeScreen
 
 import com.turkcell.libraryapp.ui.screen.LoginScreen
 import com.turkcell.libraryapp.ui.screen.RegisterScreen
+import com.turkcell.libraryapp.ui.screen.SplashScreen
 import com.turkcell.libraryapp.ui.viewmodel.AuthViewModel
+import com.turkcell.libraryapp.ui.viewmodel.BookViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController = rememberNavController()) {
 
     val authViewModel: AuthViewModel = viewModel()
 
-
-    NavHost(navController = navController, startDestination = Screen.Login.route)
+    val bookViewModel: BookViewModel = viewModel()
+    NavHost(navController = navController, startDestination = Screen.Splash.route)
     {
         composable(Screen.Login.route) { LoginScreen(
             onNavigateToRegister = { navController.navigate(Screen.Register.route) },
@@ -36,7 +38,22 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
             authViewModel
         ) }
         composable(Screen.Homepage.route) {
-            HomeScreen(authViewModel)
+            HomeScreen(authViewModel, bookViewModel)
+        }
+
+        composable(Screen.Splash.route) {
+            SplashScreen(authViewModel,
+                onAuthenticated = { role ->
+                    navController.navigate(Screen.Homepage.route){
+                        popUpTo(Screen.Splash.route) {inclusive=true}
+                    }
+                },
+                onUnauthenticated = {
+                    navController.navigate(Screen.Login.route)
+                    {
+                        popUpTo(Screen.Splash.route) {inclusive=true}
+                    }
+                })
         }
     }
 }

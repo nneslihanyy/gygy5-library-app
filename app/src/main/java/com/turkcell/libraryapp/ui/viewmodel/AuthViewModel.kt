@@ -3,6 +3,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.turkcell.libraryapp.data.model.Profile
 import com.turkcell.libraryapp.data.repository.AuthRepository
+import com.turkcell.libraryapp.data.supabase.supabase
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.status.SessionStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,6 +18,11 @@ sealed class AuthState {
     data class Error(val message: String) : AuthState()
 }
 
+sealed class SessionState {
+    object Initializing : SessionState()
+    object Unauthenticated : SessionState()
+    data class Authenticated(val role: String) : SessionState()
+}
 
 class AuthViewModel : ViewModel()
 {
@@ -25,6 +33,39 @@ class AuthViewModel : ViewModel()
 
     private val _profile = MutableStateFlow<Profile?>(null)
     val profile: StateFlow<Profile?> = _profile;
+
+    private val _sessionState = MutableStateFlow<SessionState>(SessionState.Initializing);
+    val sessionState: StateFlow<SessionState> = _sessionState;
+
+
+    init {
+        viewModelScope.launch {
+            supabase.auth.sessionStatus.collect { status ->
+                when (status)
+                {
+                    is SessionStatus.Authenticated -> {
+                        val userId = repository.getCurrentUserId()
+                        if(userId==null)
+                        {
+                            _profile.value = null
+                            _sessionState.value = SessionState.Unauthenticated
+                            return@collect
+                        }
+                        val profile = repository.getProfile(userId)
+                        _profile.value = profile
+                        _sessionState.value = SessionState.Authenticated(profile?.role ?: "student")
+                    }
+                    SessionStatus.Initializing -> {
+                        _sessionState.value = SessionState.Initializing
+                    }
+                    else -> {
+                        _profile.value = null
+                        _sessionState.value = SessionState.Unauthenticated
+                    }
+                }
+            }
+        }
+    }
 
     fun signIn(email: String, password: String)
     {
@@ -65,4 +106,6 @@ class AuthViewModel : ViewModel()
     fun resetState() {
         _authState.value = AuthState.Idle;
     }
+
+
 }

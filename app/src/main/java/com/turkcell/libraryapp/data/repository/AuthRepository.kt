@@ -27,7 +27,7 @@ class AuthRepository {
         }
         val userId= supabase.auth.currentUserOrNull()?.id?:error("Kullanıcı bulunamadı")
         supabase.postgrest["profiles"].insert(
-            Profile(userId,fullName,studentNo)
+            Profile(userId, "student", fullName, studentNo)
         )
 
     }

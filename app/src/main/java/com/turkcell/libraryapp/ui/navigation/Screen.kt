@@ -9,5 +9,6 @@ sealed class Screen (val route: String){
 
         object Homepage: Screen("homepage")
 
+        object Splash: Screen("splash")
 
 }
