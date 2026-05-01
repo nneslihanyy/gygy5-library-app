@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.turkcell.libraryapp.data.model.Book
 import com.turkcell.libraryapp.ui.viewmodel.AuthViewModel
 import com.turkcell.libraryapp.ui.viewmodel.BookViewModel
 
@@ -32,6 +34,10 @@ fun HomeScreen(
     val error by bookViewModel.error.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
+
+    // Dialog state'leri
+    var showAddDialog by remember { mutableStateOf(false) }
+    var editingBook by remember { mutableStateOf<Book?>(null) }
 
     Scaffold(
         topBar = {
@@ -54,6 +60,16 @@ fun HomeScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showAddDialog = true }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Kitap Ekle"
+                )
+            }
         }
     ) { paddingValues ->
         Column(
@@ -129,11 +145,38 @@ fun HomeScreen(
                             book = book,
                             onDeleteClick = { bookId ->
                                 bookViewModel.deleteBook(bookId)
+                            },
+                            onEditClick = { selectedBook ->
+                                editingBook = selectedBook
                             }
                         )
                     }
                 }
             }
         }
+    }
+
+    // Yeni kitap ekleme dialog'u
+    if (showAddDialog) {
+        BookFormDialog(
+            book = null,
+            onDismiss = { showAddDialog = false },
+            onSave = { newBook ->
+                bookViewModel.addBook(newBook)
+                showAddDialog = false
+            }
+        )
+    }
+
+    // Kitap düzenleme dialog'u
+    editingBook?.let { book ->
+        BookFormDialog(
+            book = book,
+            onDismiss = { editingBook = null },
+            onSave = { updatedBook ->
+                bookViewModel.updateBook(updatedBook)
+                editingBook = null
+            }
+        )
     }
 }

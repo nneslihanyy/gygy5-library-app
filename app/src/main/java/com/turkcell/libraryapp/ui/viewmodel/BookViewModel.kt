@@ -37,6 +37,18 @@ class BookViewModel : ViewModel() {
         }
     }
 
+    // Yeni kitap ekle
+    fun addBook(book: Book) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            repository
+                .addBook(book)
+                .onSuccess { loadBooks() }
+                .onFailure { _error.value = it.message }
+        }
+    }
+
     // ÖDEV 2: Kitap güncelle
     fun updateBook(book: Book) {
         viewModelScope.launch {

@@ -3,6 +3,7 @@ package com.turkcell.libraryapp.ui.screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +18,8 @@ import com.turkcell.libraryapp.data.model.Book
 @Composable
 fun BookCard(
     book: Book,
-    onDeleteClick: (String) -> Unit = {}
+    onDeleteClick: (String) -> Unit = {},
+    onEditClick: (Book) -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -33,7 +35,7 @@ fun BookCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Kitap başlığı ve sil butonu
+            // Kitap başlığı ve aksiyon butonları
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -47,12 +49,23 @@ fun BookCard(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(onClick = { onDeleteClick(book.id) }) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Sil",
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                Row {
+                    // Düzenle butonu
+                    IconButton(onClick = { onEditClick(book) }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Düzenle",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    // Sil butonu
+                    IconButton(onClick = { onDeleteClick(book.id) }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Sil",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
 

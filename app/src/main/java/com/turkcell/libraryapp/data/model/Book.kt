@@ -14,3 +14,4 @@ data class Book(
     @SerialName("total_copies") val totalCopies: Int = 1,
     @SerialName("available_copies") val avaiableCopies: Int = 1,
 )
+
