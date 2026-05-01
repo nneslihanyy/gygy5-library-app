@@ -108,4 +108,12 @@ class AuthViewModel : ViewModel()
     }
 
 
+    fun signOut() {
+        viewModelScope.launch {
+            repository.signOut()
+            _profile.value = null
+            _authState.value = AuthState.Idle
+        }
+    }
+
 }

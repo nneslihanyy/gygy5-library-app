@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.turkcell.libraryapp.ui.viewmodel.AuthState
 import com.turkcell.libraryapp.ui.viewmodel.AuthViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun RegisterScreen(
@@ -29,103 +30,126 @@ fun RegisterScreen(
     var fullName by remember { mutableStateOf("") }
     var studentNo by remember { mutableStateOf("") }
 
-    // Kayıt başarılı olduğunda Login ekranına yönlendir
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // ÖDEV 1: Kayıt başarılı olduğunda Snackbar göster, ardından Login ekranına yönlendir
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
-            onNavigateToLogin()
+            snackbarHostState.showSnackbar(
+                message = "Kayıt başarılı! Giriş ekranına yönlendiriliyorsunuz...",
+                duration = SnackbarDuration.Short
+            )
+            delay(1500)
             authViewModel.resetState()
+            onNavigateToLogin()
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Kayıt Ol",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OutlinedTextField(
-            value = fullName,
-            onValueChange = { fullName = it },
-            label = { Text("Ad Soyad") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("E-posta") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Şifre") },
-            modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = studentNo,
-            onValueChange = { studentNo = it },
-            label = { Text("Öğrenci No (opsiyonel)") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-
-        if (authState is AuthState.Error) {
-            Text(
-                text = (authState as AuthState.Error).message,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-        }
-
-        Button(
-            onClick = {
-                authViewModel.signUp(
-                    email = email.trim(),
-                    password = password,
-                    fullName = fullName.trim(),
-                    studentNo = studentNo.trim().ifEmpty { null }
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = authState !is AuthState.Loading
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            if (authState is AuthState.Loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            } else {
-                Text("Kayıt Ol")
-            }
-        }
-        Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Kayıt Ol",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(32.dp))
 
-        TextButton(onClick = { onNavigateToLogin() }) {
-            Text("Zaten hesabın var mı? Giriş Yap")
+            OutlinedTextField(
+                value = fullName,
+                onValueChange = { fullName = it },
+                label = { Text("Ad Soyad") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("E-posta") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Şifre") },
+                modifier = Modifier.fillMaxWidth(),
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = studentNo,
+                onValueChange = { studentNo = it },
+                label = { Text("Öğrenci No (opsiyonel)") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Hata mesajı
+            if (authState is AuthState.Error) {
+                Text(
+                    text = (authState as AuthState.Error).message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+            }
+
+            // Başarı mesajı (Snackbar ile birlikte ekranda da gösterelim)
+            if (authState is AuthState.Success) {
+                Text(
+                    text = "Kayıt başarılı!",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+            }
+
+            Button(
+                onClick = {
+                    authViewModel.signUp(
+                        email = email.trim(),
+                        password = password,
+                        fullName = fullName.trim(),
+                        studentNo = studentNo.trim().ifEmpty { null }
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = authState !is AuthState.Loading && authState !is AuthState.Success
+            ) {
+                if (authState is AuthState.Loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Kayıt Ol")
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TextButton(onClick = { onNavigateToLogin() }) {
+                Text("Zaten hesabın var mı? Giriş Yap")
+            }
         }
     }
 }

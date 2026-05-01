@@ -38,7 +38,15 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
             authViewModel
         ) }
         composable(Screen.Homepage.route) {
-            HomeScreen(authViewModel, bookViewModel)
+            HomeScreen(
+                authViewModel = authViewModel,
+                bookViewModel = bookViewModel,
+                onLogout = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable(Screen.Splash.route) {

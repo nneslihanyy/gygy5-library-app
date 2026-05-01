@@ -44,4 +44,7 @@ class AuthRepository {
             .decodeSingle<Profile>()
     }.getOrNull()
 
+    suspend fun signOut() {
+        supabase.auth.signOut()
+    }
 }
