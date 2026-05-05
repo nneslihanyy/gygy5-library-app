@@ -14,114 +14,79 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.turkcell.libraryapp.data.model.Book
 
-// ÖDEV 3: Ayrı composable olarak kitap kart tasarımı
 @Composable
 fun BookCard(
     book: Book,
     onDeleteClick: (String) -> Unit = {},
-    onEditClick: (Book) -> Unit = {}
+    onEditClick: (Book) -> Unit = {},
+    onBorrowClick: (Book) -> Unit = {}
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            // Kitap başlığı ve aksiyon butonları
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = book.title,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
+                Text(book.title, fontSize = 18.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                 Row {
-                    // Düzenle butonu
                     IconButton(onClick = { onEditClick(book) }) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Düzenle",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        Icon(Icons.Default.Edit, contentDescription = "Düzenle", tint = MaterialTheme.colorScheme.primary)
                     }
-                    // Sil butonu
                     IconButton(onClick = { onDeleteClick(book.id) }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Sil",
-                            tint = MaterialTheme.colorScheme.error
-                        )
+                        Icon(Icons.Default.Delete, contentDescription = "Sil", tint = MaterialTheme.colorScheme.error)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(4.dp))
-
-            // Yazar
-            Text(
-                text = "Yazar: ${book.author}",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
+            Text("Yazar: ${book.author}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Kategori ve sayfa sayısı
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 if (book.category.isNotEmpty()) {
-                    AssistChip(
-                        onClick = {},
-                        label = { Text(book.category, fontSize = 12.sp) }
-                    )
+                    AssistChip(onClick = {}, label = { Text(book.category, fontSize = 12.sp) })
                 }
-                Text(
-                    text = "${book.pageCount} sayfa",
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
+                Text("${book.pageCount} sayfa", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterVertically))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // ISBN ve kopya bilgisi
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 if (book.isbn.isNotEmpty()) {
-                    Text(
-                        text = "ISBN: ${book.isbn}",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Text("ISBN: ${book.isbn}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Text(
-                    text = "Mevcut: ${book.avaiableCopies}/${book.totalCopies}",
+                    "Mevcut: ${book.avaiableCopies}/${book.totalCopies}",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = if (book.avaiableCopies > 0)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.error
+                    color = if (book.avaiableCopies > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                 )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            if (book.avaiableCopies > 0) {
+                Button(
+                    onClick = { onBorrowClick(book) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("📚 ÖDÜNÇ AL", fontWeight = FontWeight.Bold)
+                }
+            } else {
+                OutlinedButton(
+                    onClick = {},
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = false,
+                    colors = ButtonDefaults.outlinedButtonColors(disabledContentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("STOKTA YOK", fontWeight = FontWeight.Bold)
+                }
             }
         }
     }

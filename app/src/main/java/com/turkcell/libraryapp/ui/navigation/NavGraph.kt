@@ -2,6 +2,8 @@ package com.turkcell.libraryapp.ui.navigation
 
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -10,10 +12,12 @@ import androidx.navigation.compose.rememberNavController
 import com.turkcell.libraryapp.ui.screen.HomeScreen
 
 import com.turkcell.libraryapp.ui.screen.LoginScreen
+import com.turkcell.libraryapp.ui.screen.MyBorrowsScreen
 import com.turkcell.libraryapp.ui.screen.RegisterScreen
 import com.turkcell.libraryapp.ui.screen.SplashScreen
 import com.turkcell.libraryapp.ui.viewmodel.AuthViewModel
 import com.turkcell.libraryapp.ui.viewmodel.BookViewModel
+import com.turkcell.libraryapp.ui.viewmodel.BorrowViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController = rememberNavController()) {
@@ -21,6 +25,8 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
     val authViewModel: AuthViewModel = viewModel()
 
     val bookViewModel: BookViewModel = viewModel()
+    val borrowViewModel: BorrowViewModel = viewModel()
+
     NavHost(navController = navController, startDestination = Screen.Splash.route)
     {
         composable(Screen.Login.route) { LoginScreen(
@@ -41,10 +47,26 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
             HomeScreen(
                 authViewModel = authViewModel,
                 bookViewModel = bookViewModel,
+                borrowViewModel = borrowViewModel,
                 onLogout = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onNavigateToMyBorrows = {
+                    navController.navigate(Screen.MyBorrows.route)
+                }
+            )
+        }
+
+        composable(Screen.MyBorrows.route) {
+            val profile by authViewModel.profile.collectAsState()
+            MyBorrowsScreen(
+                studentId = profile?.userId ?: "",
+                borrowViewModel = borrowViewModel,
+                bookViewModel = bookViewModel,
+                onBack = {
+                    navController.popBackStack()
                 }
             )
         }
